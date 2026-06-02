@@ -154,13 +154,84 @@ export const register = async (req, res) => {
 
 
 
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     if (!email || !password) {
+//       return res.status(400).json({
+//         message: "Email and password are required"
+//       });
+//     }
+
+//     const userResult = await pool.query(
+//       `
+//       SELECT *
+//       FROM users
+//       WHERE email = $1
+//       `,
+//       [email]
+//     );
+
+//     if (userResult.rows.length === 0) {
+//       return res.status(401).json({
+//         message: "Invalid credentials"
+//       });
+//     }
+
+//     const user = userResult.rows[0];
+
+//     const isMatch = await bcrypt.compare(
+//       password,
+//       user.password_hash
+//     );
+
+//     if (!isMatch) {
+//       return res.status(401).json({
+//         message: "Invalid credentials"
+//       });
+//     }
+
+//     const token = jwt.sign(
+//       {
+//         userId: user.id,
+//         email: user.email
+//       },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "120d"
+//       }
+//     );
+//     console.log("Generated JWT token:", token);
+//     return res.status(200).json({
+//       success: true,
+//       token,
+//       user: {
+//         id: user.id,
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         gender: user.gender
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+
+//     return res.status(500).json({
+//       message: "Server error"
+//     });
+//   }
+// };
+
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
 
-    if (!email || !password) {
+    if (!phone || !password) {
       return res.status(400).json({
-        message: "Email and password are required"
+        success: false,
+        message: "Phone and password are required",
       });
     }
 
@@ -168,58 +239,62 @@ export const login = async (req, res) => {
       `
       SELECT *
       FROM users
-      WHERE email = $1
+      WHERE phone = $1
       `,
-      [email]
+      [phone]
     );
 
     if (userResult.rows.length === 0) {
       return res.status(401).json({
-        message: "Invalid credentials"
+        success: false,
+        message: "Invalid phone or password",
       });
     }
 
     const user = userResult.rows[0];
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
+    const isMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!isMatch) {
       return res.status(401).json({
-        message: "Invalid credentials"
+        success: false,
+        message: "Invalid phone or password",
       });
     }
 
     const token = jwt.sign(
       {
         userId: user.id,
-        email: user.email
+        phone: user.phone,
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "120d"
+        expiresIn: "120d",
       }
     );
-    console.log("Generated JWT token:", token);
+
     return res.status(200).json({
       success: true,
+      message: "Login successful",
       token,
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
         phone: user.phone,
-        gender: user.gender
-      }
+        birth_date: user.birth_date,
+        photo_url: user.photo_url,
+        gender: user.gender,
+        phone_verified: user.phone_verified,
+        profile_completed: user.profile_completed,
+      },
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
 
     return res.status(500).json({
-      message: "Server error"
+      success: false,
+      message: "Server error",
     });
   }
 };
