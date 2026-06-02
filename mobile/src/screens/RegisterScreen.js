@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF7F8",
   },
   topSection: {
-    backgroundColor: "#E91E4D",
+    backgroundColor: "#c6586f",
     paddingTop: 60,
     paddingHorizontal: 24,
     paddingBottom: 35,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#E91E4D",
+    color: "#c6586f",
     marginTop: 10,
     marginBottom: 12,
   },
@@ -398,8 +398,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   genderButtonActive: {
-    backgroundColor: "#E91E4D",
-    borderColor: "#E91E4D",
+    backgroundColor: "#c6586f",
+    borderColor: "#c6586f",
   },
   genderText: {
     color: "#7C4D59",
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   contactTitle: {
-    color: "#E91E4D",
+    color: "#c6586f",
     fontWeight: "800",
   },
   removeText: {
@@ -432,18 +432,18 @@ const styles = StyleSheet.create({
   },
   addButton: {
     borderWidth: 1,
-    borderColor: "#E91E4D",
+    borderColor: "#c6586f",
     borderRadius: 16,
     paddingVertical: 14,
     alignItems: "center",
     marginBottom: 16,
   },
   addButtonText: {
-    color: "#E91E4D",
+    color: "#c6586f ",
     fontWeight: "800",
   },
   submitButton: {
-    backgroundColor: "#E91E4D",
+    backgroundColor: "#c6586f",
     paddingVertical: 16,
     borderRadius: 18,
     alignItems: "center",
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   loginText: {
-    color: "#E91E4D",
+    color: "#c6586f",
     textAlign: "center",
     fontWeight: "700",
     marginTop: 20,

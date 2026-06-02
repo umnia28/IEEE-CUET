@@ -14,7 +14,7 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { API_URL } from "../services/api";
 
-const PRIMARY = "#ED234F";
+const PRIMARY = "#c6586f";
 
 export default function LoginScreen({ navigation }) {
   const [phone, setPhone] = useState("");
