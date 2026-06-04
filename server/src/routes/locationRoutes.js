@@ -4,6 +4,6 @@ import {protect} from '../middlewares/protect.js';
 const router = express.Router();
 
 import { updateUserLocation } from '../controllers/locationController.js';
-router.post("/location/update", protect, updateUserLocation);
+router.post("/update", protect, updateUserLocation);
 
 export default router;
