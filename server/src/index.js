@@ -3,6 +3,7 @@ import cors from 'cors';
 import 'dotenv/config';
 import cookiParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
+import sosRoutes from "./routes/sosRoutes.js";
 import http from "http";
 import { Server } from "socket.io";
 
@@ -37,6 +38,7 @@ const PORT =  process.env.PORT || 3000;
 
 
 app.use("/api/auth", authRoutes);
+app.use("/api/sos", sosRoutes);
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
