@@ -27,9 +27,12 @@ export const startSos = async () => {
       trigger_type: "button",
     }),
   });
+
   console.log("Start SOS response status:", response.status);
-  console.log("Start SOS response data:", response.json());
+
   const data = await response.json();
+
+  console.log("Start SOS response data:", data);
 
   if (!response.ok) {
     throw new Error(data.message || "Failed to start SOS");
@@ -37,7 +40,6 @@ export const startSos = async () => {
 
   return data;
 };
-
 export const startLocationUpdates = async (sosId) => {
   const token = await SecureStore.getItemAsync("token");
 
