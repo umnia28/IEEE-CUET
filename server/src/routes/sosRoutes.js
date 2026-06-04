@@ -6,7 +6,7 @@ import {
   resolveSos,
 } from "../controllers/sosController.js";
 
-import { protect } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/protect.js";
 
 const router = express.Router();
 
