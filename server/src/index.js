@@ -1,17 +1,36 @@
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
-import cookiParser from 'cookie-parser';
-import authRoutes from './routes/authRoutes.js';
-import sosRoutes from "./routes/sosRoutes.js";
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
+import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(cookiParser());
+import authRoutes from "./routes/authRoutes.js";
+import sosRoutes from "./routes/sosRoutes.js";
 
+const app = express();
+
+app.use(cors({
+  origin: "*",
+  credentials: true,
+}));
+
+app.use(express.json());
+app.use(cookieParser());
+
+app.get("/", (req, res) => {
+  res.send("Nirvaya backend is running");
+});
+
+app.get("/api/debug", (req, res) => {
+  res.json({
+    success: true,
+    message: "API is working",
+  });
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/sos", sosRoutes);
 
 const server = http.createServer(app);
 
@@ -21,6 +40,7 @@ export const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
@@ -34,13 +54,8 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT =  process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-
-app.use("/api/auth", authRoutes);
-app.use("/api/sos", sosRoutes);
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-
