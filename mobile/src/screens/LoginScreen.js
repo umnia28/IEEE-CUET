@@ -54,7 +54,7 @@ export default function LoginScreen({ navigation }) {
       Alert.alert("Success", "Logged in successfully");
 
       // Later change this to your home/dashboard screen.
-      // navigation.replace("Home");
+      navigation.replace("Home");
     } catch (error) {
       console.log("Login error:", error);
       Alert.alert("Network Error", "Could not connect to server");

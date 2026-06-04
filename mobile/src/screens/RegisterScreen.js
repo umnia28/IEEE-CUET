@@ -140,11 +140,11 @@ export default function RegisterScreen({ navigation }) {
       }
 
       await SecureStore.setItemAsync("token", data.token);
-
+      await SecureStore.setItemAsync("user", JSON.stringify(data.user));
       Alert.alert("Success", "Account created successfully");
 
-      // Change this later to your Home screen
-      navigation.replace("Login");
+      
+      navigation.replace("Home");
     } catch (error) {
       console.log("Register error:", error);
       Alert.alert("Network Error", "Could not connect to server");
