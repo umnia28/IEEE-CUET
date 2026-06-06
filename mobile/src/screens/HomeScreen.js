@@ -327,7 +327,10 @@ export default function HomeScreen({ navigation }) {
     setMenuVisible(false);
     navigation.navigate("UserProfile");
   };
-
+  const goToSafeRoutes = () => {
+    setMenuVisible(false);
+    navigation.navigate("SafeRoutes");
+  }
   const goToVolunteerProfile = () => {
     setMenuVisible(false);
     navigation.navigate("VolunteerProfile");
@@ -599,6 +602,12 @@ export default function HomeScreen({ navigation }) {
                   onPress={goToVolunteerProfile}
                 >
                   <Text style={styles.menuText}>Volunteer Profile</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={goToSafeRoutes}
+                >
+                  <Text style={styles.menuText}>Safe Routes Recommendation</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity

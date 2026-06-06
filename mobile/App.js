@@ -7,6 +7,7 @@ import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import AuthLoadingScreen from "./src/screens/AuthLoadingScreen";
 import UserProfileScreen from "./src/screens/UserProfileScreen";
+import SafeRoutesScreen from "./src/screens/SafeRoutesScreen";
 import "./src/tasks/locationTrackingTask";
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SafeRoutes" component={SafeRoutesScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

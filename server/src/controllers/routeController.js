@@ -403,3 +403,80 @@ export const getSafeAlternativeRoutes = async (req, res) => {
     });
   }
 };
+
+
+export const autocompleteDestination = async (req, res) => {
+  try {
+    const { text, latitude, longitude } = req.query;
+
+    if (!text || text.trim().length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: "Search text must be at least 2 characters",
+      });
+    }
+
+    if (!ORS_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        message: "ORS_API_KEY is missing",
+      });
+    }
+
+    const params = new URLSearchParams({
+      text: text.trim(),
+      "boundary.country": "BD",
+      size: "5",
+    });
+
+    // Optional: bias results near user's current location
+    if (latitude && longitude) {
+      params.append("focus.point.lat", String(latitude));
+      params.append("focus.point.lon", String(longitude));
+    }
+
+    const response = await fetch(
+      `${ORS_BASE_URL}/geocode/autocomplete?${params.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: ORS_API_KEY,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data?.error?.message || "Autocomplete failed");
+    }
+
+    const suggestions = (data.features || []).map((feature) => {
+      const [longitude, latitude] = feature.geometry.coordinates;
+
+      return {
+        label: feature.properties?.label,
+        name: feature.properties?.name,
+        district:
+          feature.properties?.county ||
+          feature.properties?.locality ||
+          feature.properties?.region,
+        latitude,
+        longitude,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      suggestions,
+    });
+  } catch (error) {
+    console.error("Autocomplete destination error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to autocomplete destination",
+      error: error.message,
+    });
+  }
+};
