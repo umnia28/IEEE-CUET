@@ -27,7 +27,7 @@ export const predictRiskWithModel = async ({
 
 
 export const predictRiskBatchWithModel = async (points) => {
-  const response = await fetch(`${process.env.RISK_MODEL_URL}/predict-batch`, {
+  const response = await fetch(`${process.env.MODEL_API_URL}/predict-batch`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
