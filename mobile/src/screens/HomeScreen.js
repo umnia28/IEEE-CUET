@@ -474,12 +474,12 @@ export default function HomeScreen({ navigation }) {
 
                 <Text style={styles.zoneText}>{getRiskSubtitle()}</Text>
 
-                {currentCoords && (
+                {/* {currentCoords && (
                   <Text style={styles.coordText}>
                     {currentCoords.latitude.toFixed(5)},{" "}
                     {currentCoords.longitude.toFixed(5)}
                   </Text>
-                )}
+                )} */}
               </View>
 
               {initialRiskLoading ? (
