@@ -749,34 +749,6 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
 
-    districtRow: {
-        flexDirection: "row",
-        gap: 10,
-    },
-
-    districtButton: {
-        flex: 1,
-        backgroundColor: "#FFF7F8",
-        borderWidth: 1,
-        borderColor: "#FFC9D4",
-        borderRadius: 15,
-        paddingVertical: 12,
-        alignItems: "center",
-    },
-
-    districtButtonActive: {
-        backgroundColor: PRIMARY,
-        borderColor: PRIMARY,
-    },
-
-    districtText: {
-        color: MUTED,
-        fontWeight: "900",
-    },
-
-    districtTextActive: {
-        color: "#fff",
-    },
 
     buttonRow: {
         flexDirection: "row",
