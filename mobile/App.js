@@ -6,6 +6,7 @@ import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import AuthLoadingScreen from "./src/screens/AuthLoadingScreen";
+import "./src/tasks/locationTrackingTask";
 const Stack = createNativeStackNavigator();
 
 export default function App() {

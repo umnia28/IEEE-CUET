@@ -119,8 +119,7 @@ export const updateUserLocation = async (req, res) => {
 
       riskScore = Number(modelPrediction.risk_score || 0);
 
-      // Your model returns low/medium/high.
-      // Your DB uses low/medium/high/critical.
+      
       riskLevel = modelPrediction.risk_level || "low";
 
       if (riskLevel === "danger") {
