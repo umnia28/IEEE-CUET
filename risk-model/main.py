@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from typing import List, Optional
 
 app = FastAPI()
 
@@ -14,6 +15,12 @@ class RiskRequest(BaseModel):
     latitude: float
     longitude: float
     district: str
+    hour: Optional[int] = None
+    day_of_week: Optional[int] = None
+
+
+class BatchRiskRequest(BaseModel):
+    points: List[RiskRequest]
 
 
 def get_bd_time_features():
@@ -33,6 +40,22 @@ def get_bd_time_features():
 
     return hour, day_of_week, time_of_day
 
+def get_risk_score_from_probabilities(risk_level, probabilities):
+    high_probability = probabilities.get("high", 0)
+
+    # Keep same style as your single prediction endpoint:
+    # risk_score = high class probability
+    if high_probability is not None:
+        return round(float(high_probability), 2)
+
+    if risk_level == "critical":
+        return 95.0
+    if risk_level == "high":
+        return 85.0
+    if risk_level == "medium":
+        return 60.0
+
+    return 25.0
 
 @app.get("/")
 def root():
@@ -90,8 +113,6 @@ def predict_risk(data: RiskRequest):
         "probabilities": probabilities,
     }
 
-
-
 @app.post("/predict-batch")
 def predict_risk_batch(request: BatchRiskRequest):
     if not request.points:
@@ -101,44 +122,63 @@ def predict_risk_batch(request: BatchRiskRequest):
             "predictions": [],
         }
 
-    bd_time = get_bd_time()
+    current_hour, current_day_of_week, current_time_of_day = get_bd_time_features()
 
     rows = []
 
     for point in request.points:
-        hour = point.hour if point.hour is not None else bd_time["hour"]
+        hour = point.hour if point.hour is not None else current_hour
         day_of_week = (
             point.day_of_week
             if point.day_of_week is not None
-            else bd_time["day_of_week"]
+            else current_day_of_week
         )
 
         rows.append(
             {
                 "latitude": point.latitude,
                 "longitude": point.longitude,
+                "district": point.district,
                 "hour": hour,
                 "day_of_week": day_of_week,
-                "district": point.district,
             }
         )
 
     input_df = pd.DataFrame(rows)
 
     predictions = model.predict(input_df)
-    probabilities_matrix = model.predict_proba(input_df)
-    classes = model.classes_
+
+    probabilities_matrix = None
+    classes = []
+
+    if hasattr(model, "predict_proba"):
+        probabilities_matrix = model.predict_proba(input_df)
+        classes = model.classes_
 
     results = []
 
     for i, row in enumerate(rows):
-        probabilities = {
-            classes[j]: round(float(probabilities_matrix[i][j]) * 100, 2)
-            for j in range(len(classes))
-        }
+        raw_prediction = str(predictions[i])
 
-        risk_level = predictions[i]
-        risk_score = score_from_prediction(risk_level, probabilities)
+        probabilities = {}
+
+        if probabilities_matrix is not None:
+            probabilities = {
+                str(classes[j]): round(float(probabilities_matrix[i][j]) * 100, 2)
+                for j in range(len(classes))
+            }
+
+        high_probability = probabilities.get("high", 0)
+
+        if raw_prediction == "high" and high_probability >= 75:
+            final_level = "critical"
+        else:
+            final_level = raw_prediction
+
+        risk_score = get_risk_score_from_probabilities(
+            final_level,
+            probabilities
+        )
 
         results.append(
             {
@@ -147,8 +187,9 @@ def predict_risk_batch(request: BatchRiskRequest):
                 "district": row["district"],
                 "hour": row["hour"],
                 "day_of_week": row["day_of_week"],
-                "risk_level": risk_level,
-                "predicted_area_risk": risk_level,
+                "time_of_day": current_time_of_day,
+                "risk_level": final_level,
+                "predicted_area_risk": raw_prediction,
                 "risk_score": risk_score,
                 "probabilities": probabilities,
             }
