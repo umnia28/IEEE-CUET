@@ -4,8 +4,8 @@ import {
   updateUserProfile,
 } from "../controllers/userController.js";
 
-import { protect } from "../middleware/authMiddleware.js";
-import { upload } from "../middleware/uploadMiddleware.js";
+import { protect } from "../middlewares/protect.js";
+import { upload } from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
