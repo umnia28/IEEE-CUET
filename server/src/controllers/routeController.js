@@ -397,28 +397,7 @@ export const getSafeAlternativeRoutes = async (req, res) => {
             return (a.duration_seconds || 0) - (b.duration_seconds || 0);
         });
 
-        const rankedRoutes = scoredRoutes.map((route, index) => ({
-            ...route,
-            safety_rank: index + 1,
-            label:
-                index === 0
-                    ? "Safest Route"
-                    : index === 1
-                        ? "Balanced Route"
-                        : "Least Safe Route",
-        }));
-
-        return res.status(200).json({
-            success: true,
-            message: "Alternative routes ranked by safety",
-            start: {
-                latitude: startLatitude,
-                longitude: startLongitude,
-            },
-            destination: destinationData,
-            checked_points_count: batchPoints.length,
-            routes: rankedRoutes,
-        });
+        
     } catch (error) {
         console.error("Safe alternative route error:", error);
 
