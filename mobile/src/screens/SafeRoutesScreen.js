@@ -629,7 +629,7 @@ import { Picker } from "@react-native-picker/picker";
 import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import * as SecureStore from "expo-secure-store";
-
+import { Picker } from "@react-native-picker/picker";
 import { API_URL } from "../services/api";
 
 const PRIMARY = "#ED234F";
@@ -707,6 +707,75 @@ const SHEET_COLLAPSED = 64;
 const SHEET_DEFAULT = 360;
 const SHEET_TALL = 540;
 
+const SHEET_COLLAPSED = 64;
+const SHEET_DEFAULT = 360;
+const SHEET_TALL = 540;
+const DISTRICTS = [
+    "Bagerhat",
+    "Bandarban",
+    "Barguna",
+    "Barishal",
+    "Bhola",
+    "Bogura",
+    "Brahmanbaria",
+    "Chandpur",
+    "Chapai Nawabganj",
+    "Chattogram",
+    "Chuadanga",
+    "Cox's Bazar",
+    "Cumilla",
+    "Dhaka",
+    "Dinajpur",
+    "Faridpur",
+    "Feni",
+    "Gaibandha",
+    "Gazipur",
+    "Gopalganj",
+    "Habiganj",
+    "Jamalpur",
+    "Jashore",
+    "Jhalokathi",
+    "Jhenaidah",
+    "Joypurhat",
+    "Khagrachhari",
+    "Khulna",
+    "Kishoreganj",
+    "Kurigram",
+    "Kushtia",
+    "Lakshmipur",
+    "Lalmonirhat",
+    "Madaripur",
+    "Magura",
+    "Manikganj",
+    "Meherpur",
+    "Moulvibazar",
+    "Munshiganj",
+    "Mymensingh",
+    "Naogaon",
+    "Narail",
+    "Narayanganj",
+    "Narsingdi",
+    "Natore",
+    "Netrokona",
+    "Nilphamari",
+    "Noakhali",
+    "Pabna",
+    "Panchagarh",
+    "Patuakhali",
+    "Pirojpur",
+    "Rajbari",
+    "Rajshahi",
+    "Rangamati",
+    "Rangpur",
+    "Satkhira",
+    "Shariatpur",
+    "Sherpur",
+    "Sirajganj",
+    "Sunamganj",
+    "Sylhet",
+    "Tangail",
+    "Thakurgaon",
+];
 export default function SafeRoutesScreen({ navigation }) {
     const mapRef = useRef(null);
     const sheetHeight = useRef(new Animated.Value(SHEET_DEFAULT)).current;
@@ -1256,41 +1325,11 @@ const styles = StyleSheet.create({
         marginTop: -4,
     },
 
-    headerTitle: {
-        color: DARK,
-        fontSize: 18,
-        fontWeight: "900",
-    },
-
-    expandFab: {
-        position: "absolute",
-        bottom: SHEET_COLLAPSED + 16,
-        alignSelf: "center",
-        backgroundColor: PRIMARY,
-        paddingHorizontal: 22,
-        paddingVertical: 11,
-        borderRadius: 30,
-        zIndex: 25,
-        elevation: 25,
-    },
-    pickerBox: {
-        backgroundColor: "#FFF7F8",
-        borderWidth: 1,
-        borderColor: "#FFC9D4",
-        borderRadius: 15,
-        overflow: "hidden",
-    },
-
-    picker: {
-        color: DARK,
-        fontWeight: "700",
-    },
-
-    expandFabText: {
-        color: "#fff",
-        fontWeight: "900",
-        fontSize: 14,
-    },
+  headerTitle: {
+    color: DARK,
+    fontSize: 18,
+    fontWeight: "900",
+  },
 
     bottomSheet: {
         position: "absolute",
@@ -1375,10 +1414,34 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
 
-    
- 
+  districtRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
 
- 
+  districtButton: {
+    flex: 1,
+    backgroundColor: "#FFF7F8",
+    borderWidth: 1,
+    borderColor: "#FFC9D4",
+    borderRadius: 15,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+
+  districtButtonActive: {
+    backgroundColor: PRIMARY,
+    borderColor: PRIMARY,
+  },
+
+  districtText: {
+    color: MUTED,
+    fontWeight: "900",
+  },
+
+  districtTextActive: {
+    color: "#fff",
+  },
 
     buttonRow: {
         flexDirection: "row",
