@@ -89,3 +89,74 @@ def predict_risk(data: RiskRequest):
         "risk_score": high_probability,
         "probabilities": probabilities,
     }
+
+
+
+@app.post("/predict-batch")
+def predict_risk_batch(request: BatchRiskRequest):
+    if not request.points:
+        return {
+            "success": False,
+            "message": "No points provided",
+            "predictions": [],
+        }
+
+    bd_time = get_bd_time()
+
+    rows = []
+
+    for point in request.points:
+        hour = point.hour if point.hour is not None else bd_time["hour"]
+        day_of_week = (
+            point.day_of_week
+            if point.day_of_week is not None
+            else bd_time["day_of_week"]
+        )
+
+        rows.append(
+            {
+                "latitude": point.latitude,
+                "longitude": point.longitude,
+                "hour": hour,
+                "day_of_week": day_of_week,
+                "district": point.district,
+            }
+        )
+
+    input_df = pd.DataFrame(rows)
+
+    predictions = model.predict(input_df)
+    probabilities_matrix = model.predict_proba(input_df)
+    classes = model.classes_
+
+    results = []
+
+    for i, row in enumerate(rows):
+        probabilities = {
+            classes[j]: round(float(probabilities_matrix[i][j]) * 100, 2)
+            for j in range(len(classes))
+        }
+
+        risk_level = predictions[i]
+        risk_score = score_from_prediction(risk_level, probabilities)
+
+        results.append(
+            {
+                "latitude": row["latitude"],
+                "longitude": row["longitude"],
+                "district": row["district"],
+                "hour": row["hour"],
+                "day_of_week": row["day_of_week"],
+                "risk_level": risk_level,
+                "predicted_area_risk": risk_level,
+                "risk_score": risk_score,
+                "probabilities": probabilities,
+            }
+        )
+
+    return {
+        "success": True,
+        "source": "model",
+        "count": len(results),
+        "predictions": results,
+    }

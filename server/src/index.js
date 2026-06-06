@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import sosRoutes from "./routes/sosRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import routeRoutes from "./routes/routeRoutes.js";
 const app = express();
 
 app.use(cors({
@@ -34,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/sos", sosRoutes);
 app.use("/api/location", locationRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/routes", routeRoutes);
 
 const server = http.createServer(app);
 

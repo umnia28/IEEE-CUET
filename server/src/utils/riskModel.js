@@ -23,3 +23,25 @@ export const predictRiskWithModel = async ({
 
   return data;
 };
+
+
+
+export const predictRiskBatchWithModel = async (points) => {
+  const response = await fetch(`${process.env.RISK_MODEL_URL}/predict-batch`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      points,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(data.message || "Batch risk model prediction failed");
+  }
+
+  return data.predictions;
+};
