@@ -167,3 +167,135 @@ export const updateUserLocation = async (req, res) => {
     });
   }
 };
+
+export const checkCurrentLocationRisk = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        message: "Latitude and longitude are required",
+      });
+    }
+
+    const timeOfDay = getBangladeshTimeOfDay();
+
+    // 1. First check known risk zone from database
+    const riskZoneResult = await pool.query(
+      `
+      SELECT
+        id,
+        district,
+        zone_name,
+        latitude,
+        longitude,
+        time_of_day,
+        risk_score,
+        risk_level,
+        radius_meters,
+        (
+          6371000 * acos(
+            cos(radians($1)) *
+            cos(radians(latitude)) *
+            cos(radians(longitude) - radians($2)) +
+            sin(radians($1)) *
+            sin(radians(latitude))
+          )
+        ) AS distance_meters
+      FROM risk_zones
+      WHERE time_of_day = $3
+        AND (
+          6371000 * acos(
+            cos(radians($1)) *
+            cos(radians(latitude)) *
+            cos(radians(longitude) - radians($2)) +
+            sin(radians($1)) *
+            sin(radians(latitude))
+          )
+        ) <= radius_meters
+      ORDER BY risk_score DESC, distance_meters ASC
+      LIMIT 1
+      `,
+      [latitude, longitude, timeOfDay]
+    );
+
+    let riskSource = "database";
+    let riskScore = 0;
+    let riskLevel = "low";
+    let matchedZone = null;
+    let modelPrediction = null;
+    let district = "Dhaka";
+
+    if (riskZoneResult.rows.length > 0) {
+      matchedZone = riskZoneResult.rows[0];
+
+      riskScore = Number(matchedZone.risk_score);
+      riskLevel = matchedZone.risk_level;
+      district = matchedZone.district || "Dhaka";
+    } else {
+      // 2. If no exact risk zone matched, find nearest district
+      const nearestDistrictResult = await pool.query(
+        `
+        SELECT
+          district,
+          zone_name,
+          (
+            6371000 * acos(
+              cos(radians($1)) *
+              cos(radians(latitude)) *
+              cos(radians(longitude) - radians($2)) +
+              sin(radians($1)) *
+              sin(radians(latitude))
+            )
+          ) AS distance_meters
+        FROM risk_zones
+        WHERE district IS NOT NULL
+        ORDER BY distance_meters ASC
+        LIMIT 1
+        `,
+        [latitude, longitude]
+      );
+
+      district = nearestDistrictResult.rows[0]?.district || "Dhaka";
+
+      // 3. Use Python model
+      riskSource = "model";
+
+      modelPrediction = await predictRiskWithModel({
+        latitude,
+        longitude,
+        district,
+      });
+
+      riskScore = Number(modelPrediction.risk_score || 0);
+      riskLevel = modelPrediction.risk_level || "low";
+
+      if (riskLevel === "danger") {
+        riskLevel = "critical";
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Current location risk checked successfully",
+      risk: {
+        source: riskSource,
+        district,
+        risk_score: riskScore,
+        risk_level: riskLevel,
+        time_of_day: timeOfDay,
+        matched_zone: matchedZone,
+        model_prediction: modelPrediction,
+      },
+    });
+  } catch (error) {
+    console.error("Check current location risk error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};

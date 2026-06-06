@@ -5,74 +5,83 @@ import {
     TouchableOpacity,
     StyleSheet,
     SafeAreaView,
+    ScrollView,
 } from "react-native";
 import { Image } from "react-native";
 
+
 export default function SplashScreen({ navigation }) {
     return (
+
         <SafeAreaView style={styles.screen}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <View style={styles.logoBox} />
-                    <Text style={styles.logoText}>Nirvaya</Text>
-                    <Text style={styles.banglaLogo}>নির্ভয়া</Text>
-                </View>
-
-                <View style={styles.imageWrapper}>
-                    <Image
-                        source={require("../../assets/NirvayaApp.png")}
-                        style={styles.heroImage}
-                        resizeMode="contain"
-                    />
-
-                    <View style={styles.redOverlay} />
-                </View>
-
-                <Text style={styles.title}>Safety in every step</Text>
-                <Text style={styles.subtitle}>নিরাপদ থাকুন, সুরক্ষিত থাকুন</Text>
-
-                <Text style={styles.description}>
-                    Bangladesh's safety network for women and children. Help is always one
-                    tap away.
-                </Text>
-
-                <TouchableOpacity
-                    style={styles.primaryButton}
-                    onPress={() => navigation.navigate("Register")}
-                >
-                    <Text style={styles.primaryText}>Create Account</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.secondaryButton}
-                    onPress={() => navigation.navigate("Login")}
-                >
-                    <Text style={styles.secondaryText}>Sign In</Text>
-                </TouchableOpacity>
-
-                <View style={styles.divider} />
-
-                <View style={styles.statsRow}>
-                    <View style={styles.statBox}>
-                        <Text style={styles.statNumber}>2,400+</Text>
-                        <Text style={styles.statLabel}>Volunteers</Text>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+            >
+                <View style={styles.container}>
+                    <View style={styles.header}>
+                        <View style={styles.logoBox} />
+                        <Text style={styles.logoText}>Nirvaya</Text>
+                        <Text style={styles.banglaLogo}>নির্ভয়া</Text>
                     </View>
 
-                    <View style={styles.statLine} />
+                    <View style={styles.imageWrapper}>
+                        <Image
+                            source={require("../../assets/NirvayaApp.png")}
+                            style={styles.heroImage}
+                            resizeMode="contain"
+                        />
 
-                    <View style={styles.statBox}>
-                        <Text style={styles.statNumber}>64</Text>
-                        <Text style={styles.statLabel}>Districts</Text>
+                        <View style={styles.redOverlay} />
                     </View>
 
-                    <View style={styles.statLine} />
+                    <Text style={styles.title}>Safety in every step</Text>
+                    <Text style={styles.subtitle}>নিরাপদ থাকুন, সুরক্ষিত থাকুন</Text>
 
-                    <View style={styles.statBox}>
-                        <Text style={styles.statNumber}>98%</Text>
-                        <Text style={styles.statLabel}>Response</Text>
+                    <Text style={styles.description}>
+                        Bangladesh's safety network for women and children. Help is always one
+                        tap away.
+                    </Text>
+
+                    <TouchableOpacity
+                        style={styles.primaryButton}
+                        onPress={() => navigation.navigate("Register")}
+                    >
+                        <Text style={styles.primaryText}>Create Account</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.secondaryButton}
+                        onPress={() => navigation.navigate("Login")}
+                    >
+                        <Text style={styles.secondaryText}>Sign In</Text>
+                    </TouchableOpacity>
+
+                    <View style={styles.divider} />
+
+                    <View style={styles.statsRow}>
+                        <View style={styles.statBox}>
+                            <Text style={styles.statNumber}>2,400+</Text>
+                            <Text style={styles.statLabel}>Volunteers</Text>
+                        </View>
+
+                        <View style={styles.statLine} />
+
+                        <View style={styles.statBox}>
+                            <Text style={styles.statNumber}>64</Text>
+                            <Text style={styles.statLabel}>Districts</Text>
+                        </View>
+
+                        <View style={styles.statLine} />
+
+                        <View style={styles.statBox}>
+                            <Text style={styles.statNumber}>98%</Text>
+                            <Text style={styles.statLabel}>Response</Text>
+                        </View>
                     </View>
                 </View>
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -87,11 +96,21 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#FDF1F4",
     },
-    container: {
+    scrollView: {
         flex: 1,
+        backgroundColor: RED,
+    },
+
+    scrollContent: {
+        flexGrow: 1,
+    },
+
+    container: {
+        flexGrow: 1,
         backgroundColor: RED,
         paddingHorizontal: 28,
         paddingTop: 22,
+        paddingBottom: 40,
     },
     header: {
         flexDirection: "row",
@@ -157,7 +176,7 @@ const styles = StyleSheet.create({
         right: 8,
         top: 40,
     },
-   
+
 
     title: {
         color: "#fff",
