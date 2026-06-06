@@ -105,6 +105,19 @@ export default function SafeRoutesScreen({ navigation }) {
     return token;
   };
 
+  const normalizeDistrictName = (rawDistrict) => {
+    if (!rawDistrict) return "Dhaka";
+
+    const value = String(rawDistrict).toLowerCase();
+
+    if (value.includes("dhaka")) return "Dhaka";
+    if (value.includes("chattogram") || value.includes("chittagong")) {
+      return "Chattogram";
+    }
+
+    return district;
+  };
+
   const handleDestinationChange = (text) => {
     setDestinationText(text);
     setSelectedDestination(null);
@@ -118,6 +131,24 @@ export default function SafeRoutesScreen({ navigation }) {
     autocompleteTimer.current = setTimeout(() => {
       fetchDestinationSuggestions(text);
     }, 500);
+  };
+
+  const parseJsonResponseSafely = async (response, sourceName) => {
+    const rawText = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      console.log(`${sourceName} raw response:`, rawText.slice(0, 300));
+
+      throw new Error(
+        `${sourceName} returned HTML instead of JSON. Check API_URL and backend route.`
+      );
+    }
+
+    return data;
   };
 
   const fetchDestinationSuggestions = async (text) => {
@@ -141,17 +172,19 @@ export default function SafeRoutesScreen({ navigation }) {
         longitude: String(currentLocation.longitude),
       });
 
-      const response = await fetch(
-        `${API_URL}/routes/autocomplete?${params.toString()}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const url = `${API_URL}/routes/autocomplete?${params.toString()}`;
 
-      const data = await response.json();
+      console.log("Autocomplete URL:", url);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      const data = await parseJsonResponseSafely(response, "Autocomplete API");
 
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Failed to load suggestions");
@@ -160,6 +193,7 @@ export default function SafeRoutesScreen({ navigation }) {
       setDestinationSuggestions(data.suggestions || []);
     } catch (error) {
       console.log("Autocomplete error:", error.message);
+      setDestinationSuggestions([]);
     } finally {
       setLoadingSuggestions(false);
     }
@@ -169,6 +203,11 @@ export default function SafeRoutesScreen({ navigation }) {
     setSelectedDestination(suggestion);
     setDestinationText(suggestion.label || suggestion.name || "");
     setDestinationSuggestions([]);
+
+    if (suggestion.district) {
+      setDistrict(normalizeDistrictName(suggestion.district));
+    }
+
     Keyboard.dismiss();
   };
 
@@ -216,9 +255,9 @@ export default function SafeRoutesScreen({ navigation }) {
 
     mapRef.current.fitToCoordinates(coordinates, {
       edgePadding: {
-        top: 80,
+        top: 90,
         right: 60,
-        bottom: 360,
+        bottom: 420,
         left: 60,
       },
       animated: true,
@@ -247,6 +286,7 @@ export default function SafeRoutesScreen({ navigation }) {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          Accept: "application/json",
         },
         body: JSON.stringify({
           start_latitude: currentLocation.latitude,
@@ -256,7 +296,7 @@ export default function SafeRoutesScreen({ navigation }) {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseJsonResponseSafely(response, "Safe routes API");
 
       if (!response.ok || !data.success) {
         throw new Error(data.message || "Failed to get safe routes");
@@ -342,17 +382,18 @@ export default function SafeRoutesScreen({ navigation }) {
         <View style={styles.backButton} />
       </View>
 
-      <View style={styles.bottomSheet}>
-        <KeyboardAvoidingView
-  style={styles.bottomSheet}
-  behavior={Platform.OS === "ios" ? "padding" : "height"}
-  keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
->
+      <KeyboardAvoidingView
+        style={styles.bottomSheet}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+      >
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.bottomSheetContent}
         >
           <Text style={styles.title}>Find a safer route</Text>
+
           <Text style={styles.subtitle}>
             Enter a destination. Nirvaya will rank routes from safest available
             to least preferred.
@@ -367,6 +408,8 @@ export default function SafeRoutesScreen({ navigation }) {
               onChangeText={handleDestinationChange}
               placeholder="Search place, e.g. Mirpur 10"
               placeholderTextColor="#B88B96"
+              returnKeyType="search"
+              onSubmitEditing={getSafeRoutes}
             />
 
             {loadingSuggestions && (
@@ -380,7 +423,7 @@ export default function SafeRoutesScreen({ navigation }) {
               <View style={styles.suggestionBox}>
                 {destinationSuggestions.map((item, index) => (
                   <TouchableOpacity
-                    key={`${item.label}-${index}`}
+                    key={`${item.label || item.name}-${index}`}
                     style={styles.suggestionItem}
                     onPress={() => selectSuggestion(item)}
                   >
@@ -398,7 +441,7 @@ export default function SafeRoutesScreen({ navigation }) {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>District</Text>
+            <Text style={styles.label}>District used for model</Text>
 
             <View style={styles.districtRow}>
               <TouchableOpacity
@@ -525,8 +568,7 @@ export default function SafeRoutesScreen({ navigation }) {
             </Text>
           )}
         </ScrollView>
-        </KeyboardAvoidingView>
-      </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -538,7 +580,7 @@ const styles = StyleSheet.create({
   },
 
   map: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
   },
 
   headerOverlay: {
@@ -548,13 +590,15 @@ const styles = StyleSheet.create({
     right: 18,
     height: 54,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: "rgba(255,255,255,0.96)",
     borderWidth: 1,
     borderColor: "#FFE1E7",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 10,
+    zIndex: 20,
+    elevation: 20,
   },
 
   backButton: {
@@ -582,15 +626,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    maxHeight: "58%",
+    maxHeight: "72%",
+    minHeight: 320,
     backgroundColor: "#fff",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 20,
     paddingTop: 18,
-    paddingBottom: 30,
+    paddingBottom: 20,
     borderWidth: 1,
     borderColor: "#FFE1E7",
+    zIndex: 15,
+    elevation: 15,
+  },
+
+  bottomSheetContent: {
+    paddingBottom: 45,
   },
 
   title: {
