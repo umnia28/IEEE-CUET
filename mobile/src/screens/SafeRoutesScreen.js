@@ -9,6 +9,8 @@ import {
   Alert,
   ScrollView,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 
 import MapView, { Marker, Polyline } from "react-native-maps";
@@ -341,6 +343,11 @@ export default function SafeRoutesScreen({ navigation }) {
       </View>
 
       <View style={styles.bottomSheet}>
+        <KeyboardAvoidingView
+  style={styles.bottomSheet}
+  behavior={Platform.OS === "ios" ? "padding" : "height"}
+  keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+>
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -518,6 +525,7 @@ export default function SafeRoutesScreen({ navigation }) {
             </Text>
           )}
         </ScrollView>
+        </KeyboardAvoidingView>
       </View>
     </View>
   );
