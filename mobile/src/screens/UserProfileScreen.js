@@ -297,10 +297,7 @@ export default function UserProfileScreen({ navigation }) {
             keyboardType="number-pad"
           />
 
-          <Text style={styles.smallNote}>
-            Your NID will be stored as a secure hash, not raw text.
-          </Text>
-
+         
           <Text style={styles.label}>Birth Date</Text>
           <TextInput
             style={styles.input}

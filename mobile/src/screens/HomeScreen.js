@@ -362,7 +362,7 @@ export default function HomeScreen({ navigation }) {
     const district = currentRisk.district || "Unknown district";
     const source = currentRisk.source || "system";
 
-    return `${district} • Score: ${Number(score).toFixed(1)} • Source: ${source}`;
+    return `${district} • Score: ${Number(score).toFixed(1)} `;
   };
 
   const getRiskIconStyle = () => {
