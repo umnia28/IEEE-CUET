@@ -144,3 +144,37 @@ CREATE TABLE voice_profiles (
   codeword TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+CREATE TABLE anonymous_devices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  device_id TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS sos_alerts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  device_id TEXT NOT NULL REFERENCES anonymous_devices(device_id) ON DELETE CASCADE,
+
+  trigger_type TEXT NOT NULL
+    CHECK (trigger_type IN ('button', 'voice')),
+
+  latitude NUMERIC(9,6) NOT NULL CHECK (latitude BETWEEN -90 AND 90),
+  longitude NUMERIC(9,6) NOT NULL CHECK (longitude BETWEEN -180 AND 180),
+
+  risk_score NUMERIC(5,2) CHECK (risk_score BETWEEN 0 AND 100),
+
+  status TEXT NOT NULL DEFAULT 'active'
+    CHECK (status IN ('active', 'resolved', 'false_alarm')),
+
+  public_token TEXT UNIQUE NOT NULL,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  resolved_at TIMESTAMPTZ,
+
+  CHECK (
+    status = 'active' OR resolved_at IS NOT NULL
+  )
+);
